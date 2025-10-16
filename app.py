@@ -7,13 +7,7 @@ DB_PATH = os.path.join(APP_DIR, 'ctf.db')
 
 
 
-app = Flask(
-    __name__,
-    template_folder='templates',
-    static_folder=os.path.join(APP_DIR, 'public'),  # <-- serve public/
-    static_url_path='/static'                       # <-- maps to /static in URL
-)
-
+app = Flask(__name__)
 
 
 # --- Database Setup ---
