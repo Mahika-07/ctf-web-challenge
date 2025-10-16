@@ -1,0 +1,147 @@
+<!doctype html>
+<html>
+<head>
+  <title>Challenge</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+    body {
+      background-color: #0a0a0a;
+      color: #00ff00;
+      font-family: 'VT323', monospace;
+      font-size: 1.2rem;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      padding: 2em;
+      text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+    }
+
+    h1 {
+      font-size: 3rem;
+      border-bottom: 2px solid #00ff00;
+      padding-bottom: 10px;
+      margin-bottom: 1em;
+    }
+
+    p, code {
+      color: #9aff9a; /* Slightly dimmer green for body text */
+      text-shadow: 0 0 3px #00ff00;
+    }
+    
+    code {
+        background-color: #1a1a1a;
+        padding: 2px 5px;
+        border: 1px solid #003300;
+        border-radius: 3px;
+    }
+
+    form {
+      display: flex;
+      gap: 10px;
+      margin: 2em 0;
+    }
+
+    input[type="text"] {
+      flex-grow: 1;
+      background-color: #1a1a1a;
+      border: 1px solid #00ff00;
+      color: #00ff00;
+      font-family: 'VT323', monospace;
+      font-size: 1.2rem;
+      padding: 10px;
+      outline: none;
+      box-shadow: 0 0 5px #00ff00 inset;
+    }
+
+    input[type="text"]:focus {
+        box-shadow: 0 0 10px #00ff00 inset, 0 0 5px #00ff00;
+    }
+
+    button {
+      background-color: #00ff00;
+      color: #0a0a0a;
+      font-family: 'VT323', monospace;
+      font-size: 1.2rem;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      text-shadow: none;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    
+    button:hover {
+        background-color: #0a0a0a;
+        color: #00ff00;
+        box-shadow: 0 0 10px #00ff00;
+    }
+
+    .results {
+      margin-top: 20px;
+      border: 1px solid #003300;
+      padding: 1.5em;
+      background-color: rgba(0, 20, 0, 0.3);
+    }
+    
+    .results h4 {
+        margin-top: 0;
+        font-size: 1.5rem;
+    }
+
+    ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    
+    li {
+        margin-bottom: 1em;
+    }
+
+    pre {
+      background-color: #000;
+      border: 1px solid #003300;
+      padding: 10px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      box-shadow: 0 0 3px #00ff00 inset;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>[ Search File Storage ]</h1>
+    <p>> Try to find the contents of <code>flag.txt</code>.</p>
+    
+    <form method="post">
+      <input type="text" name="filename" size="50" placeholder="> enter filename or query...">
+      <button type="submit">Execute</button>
+    </form>
+  
+    {% if user_input %}
+      <p>> Last command executed: <code>{{ user_input }}</code></p>
+    {% endif %}
+  
+    <div class="results">
+      {% if results %}
+        <h4>> System Response:</h4>
+        <ul>
+          {% for name, content in results %}
+            <li><strong>{{ name }}</strong>: <pre>{{ content }}</pre></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        {% if message %}
+          <p>> {{ message }}</p>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

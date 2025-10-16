@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <style>
+    html,body{height:100%;margin:0}
+    body{display:flex;align-items:center;justify-content:center;background:#000; color: #0f0;}
+    img{max-width:80vw;max-height:80vh;display:block}
+    .flag-text{font-family:monospace;font-size:24px; text-align: center; line-height: 1.5;}
+    .flag-text a {color: #0f0;}
+  </style>
+</head>
+<body>
+  {% if show_sql_link %}
+    
+    <div class="flag-text">
+      Tik tok tik tok...<br><br>
+      Go to page <a href="/storage">/storage</a>
+    </div>
+
+  {% else %}
+    
+    <img src="{{ url_for('static', filename='img2.png') }}" alt="image 2">
+
+  {% endif %}
+</body>
+</html>
