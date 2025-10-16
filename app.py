@@ -5,7 +5,8 @@ from flask import Flask, render_template, request, redirect, make_response, g
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(APP_DIR, 'ctf.db')
 
-app = Flask(__name__, static_folder='public', template_folder='templates')
+app = Flask(__name__, static_folder='public', static_url_path='/public', template_folder='templates')
+
 
 
 # --- Database Setup ---
