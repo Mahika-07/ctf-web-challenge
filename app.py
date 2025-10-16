@@ -7,6 +7,7 @@ DB_PATH = os.path.join(APP_DIR, 'ctf.db')
 
 app = Flask(__name__, static_folder='public', template_folder='templates')
 
+
 # --- Database Setup ---
 def get_db():
     """
