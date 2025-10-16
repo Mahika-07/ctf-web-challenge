@@ -1,3 +1,5 @@
+# app.py
+
 import sqlite3
 import os
 from flask import Flask, render_template, request, redirect, make_response, g
@@ -5,25 +7,39 @@ from flask import Flask, render_template, request, redirect, make_response, g
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(APP_DIR, 'ctf.db')
 
-
+# --- NEW FUNCTION TO INITIALIZE DB ---
+def init_db():
+    """Creates and populates the database if it doesn't exist."""
+    if not os.path.exists(DB_PATH):
+        print("Database not found. Creating and seeding it now...")
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute('CREATE TABLE IF NOT EXISTS files (name TEXT PRIMARY KEY, content TEXT)')
+        files = [
+            ('readme.txt', 'This is just a readme.'),
+            ('notes.txt', 'Some ordinary notes.'),
+            ('flag.txt', 'l8xieee{sql_c00kies_wEb}'),
+            ('secret.txt', 'You found a secret file but not the flag.')
+        ]
+        c.executemany('INSERT OR REPLACE INTO files (name, content) VALUES (?, ?)', files)
+        conn.commit()
+        conn.close()
+        print("Database initialized (ctf.db).")
 
 app = Flask(__name__)
 
-
 # --- Database Setup ---
 def get_db():
-    """
-    Return a sqlite3 connection stored on flask.g for the request lifetime.
-    Uses check_same_thread=False so the dev server won't error on threaded access.
-    (OK for testing/CTF; use a proper DB in production.)
-    """
     db = getattr(g, "_database", None)
     if db is None:
+        # Ensure DB exists before connecting
+        init_db() 
         conn = sqlite3.connect(DB_PATH, check_same_thread=False)
         conn.row_factory = sqlite3.Row
         g._database = conn
     return g._database
 
+# --- The rest of your code is the same ---
 @app.teardown_appcontext
 def close_connection(exception):
     db = getattr(g, "_database", None)
@@ -31,7 +47,6 @@ def close_connection(exception):
         try:
             db.close()
         except Exception:
-            # swallow errors during teardown so they don't break response streaming
             pass
 
 @app.route('/robots.txt')
@@ -54,23 +69,19 @@ def storage_page():
     results = []
     query = None
     user_input = ''
-    message = "No results found." # Default message
+    message = "No results found."
 
     if request.method == 'POST':
         user_input = request.form.get('filename', '')
-        # INTENTIONAL VULNERABILITY for CTF
         query = f"SELECT name, content FROM files WHERE name = '{user_input}'"
         try:
             cur = get_db().cursor()
-            # This is insecure on purpose for the challenge
             cur.execute(query)
             rows = cur.fetchall()
-            # The logic requires the injection to return MORE than one row
             if len(rows) > 1:
                 results = rows
-                message = None # Clear message if we have results
+                message = None
         except Exception:
-            # Suppress errors for realism
             results = []
 
     return render_template('storage.html',
@@ -79,9 +90,6 @@ def storage_page():
                            user_input=user_input,
                            message=message)
 
-if __name__ == '__main__':
-    # Make sure you have run db_init.py once to create the database
-    if not os.path.exists(DB_PATH):
-        print("Database not found. Please run 'python db_init.py' first.")
-    else:
-        app.run(debug=True, host='127.0.0.1', port=5000)
+# You can remove the __main__ block for Vercel deployment
+# if __name__ == '__main__':
+#    app.run(...)
