@@ -1,17 +1,15 @@
-# app.py
-
 import sqlite3
 import os
 from flask import Flask, render_template, request, redirect, make_response, g
 
-APP_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(APP_DIR, 'ctf.db')
+# Use the /tmp directory, which is writable on Vercel
+DB_PATH = os.path.join('/tmp', 'ctf.db')
 
-# --- NEW FUNCTION TO INITIALIZE DB ---
 def init_db():
     """Creates and populates the database if it doesn't exist."""
+    # This check now looks inside /tmp
     if not os.path.exists(DB_PATH):
-        print("Database not found. Creating and seeding it now...")
+        print("Database not found in /tmp. Creating and seeding it now...")
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         c.execute('CREATE TABLE IF NOT EXISTS files (name TEXT PRIMARY KEY, content TEXT)')
@@ -28,18 +26,15 @@ def init_db():
 
 app = Flask(__name__)
 
-# --- Database Setup ---
 def get_db():
     db = getattr(g, "_database", None)
     if db is None:
-        # Ensure DB exists before connecting
-        init_db() 
+        init_db()
         conn = sqlite3.connect(DB_PATH, check_same_thread=False)
         conn.row_factory = sqlite3.Row
         g._database = conn
     return g._database
 
-# --- The rest of your code is the same ---
 @app.teardown_appcontext
 def close_connection(exception):
     db = getattr(g, "_database", None)
@@ -81,7 +76,9 @@ def storage_page():
             if len(rows) > 1:
                 results = rows
                 message = None
-        except Exception:
+        except Exception as e:
+            # For debugging, you can print the error to the Vercel logs
+            print(f"An error occurred: {e}")
             results = []
 
     return render_template('storage.html',
@@ -89,7 +86,3 @@ def storage_page():
                            query=query,
                            user_input=user_input,
                            message=message)
-
-# You can remove the __main__ block for Vercel deployment
-# if __name__ == '__main__':
-#    app.run(...)
